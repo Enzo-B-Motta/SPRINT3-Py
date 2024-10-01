@@ -1,0 +1,215 @@
+# Funções utilitárias
+def forca_opcao(msg, conjunto_opcoes, msg_erro='Escolha uma opção válida.'):
+    opcoes = '\n'.join(conjunto_opcoes)
+    escolha = input(f"{msg}\n{opcoes}\n-> ")
+    while escolha not in conjunto_opcoes:
+        print(msg_erro)
+        escolha = input(f"{msg}\n{opcoes}\n-> ")
+    return escolha
+
+
+def verifica_numero(msg, msg_erro='Erro. Insira um valor numérico'):
+    num = input(msg)
+    while not num.isnumeric():
+        print(msg_erro)
+        num = input(msg)
+    return int(num)
+
+
+# Funções relacionadas a apostas
+def cadastrar_aposta(apostas, corredores, dias):
+    corredor = forca_opcao("Em qual corredor você gostaria de apostar?", corredores)
+    dia = forca_opcao("Qual o dia da corrida?", dias)
+    valor = verifica_numero('Digite o valor da aposta: R$')
+
+    aposta_id = len(apostas) + 1
+    apostas[aposta_id] = {'Corredor': corredor, 'Dia': dia, 'Valor': valor}
+    print(f"Aposta cadastrada: {apostas[aposta_id]}")
+    return apostas
+
+
+def mostrar_apostas(apostas):
+    if not apostas:
+        print("Nenhuma aposta cadastrada.")
+    else:
+        for aposta_id in apostas:
+            dados = apostas[aposta_id]
+            print(f"Aposta {aposta_id}: Corredor - {dados['Corredor']}, Dia - {dados['Dia']}, Valor - R${dados['Valor']:.2f}")
+
+
+def ranking_corredores(corredores):
+    print("Ranking dos corredores:")
+    for posicao, corredor in enumerate(corredores, start=1):
+        print(f"{posicao} - {corredor}")
+
+
+def dias_de_corrida(dias, cidades):
+    print("Dias de corrida:")
+    for dia, cidade in zip(dias, cidades):
+        print(f"{dia} - {cidade}")
+
+
+def remover_aposta(apostas):
+    if not apostas:
+        print("Nenhuma aposta cadastrada para remover.")
+        return apostas
+
+    indices = {f'Aposta {key}': key for key in apostas.keys()}
+    escolha = forca_opcao("Qual aposta você deseja remover?", indices.keys())
+    indice_escolha = indices[escolha]
+    del apostas[indice_escolha]
+    print(f"Aposta {indice_escolha} removida.")
+    return apostas
+
+
+# Funções da Loja
+def mostrar_produtos(produtos):
+    print("Produtos disponíveis na loja:")
+    for produto_id, produto in produtos.items():
+        print(f"{produto_id} - {produto['Nome']}: R${produto['Preço']:.2f}")
+
+
+def adicionar_ao_carrinho(carrinho, produtos):
+    mostrar_produtos(produtos)
+    escolha = forca_opcao("Escolha o ID do produto que deseja comprar:", list(produtos.keys()))
+    carrinho[escolha] = produtos[escolha]
+    print(f"Produto {produtos[escolha]['Nome']} adicionado ao carrinho.")
+    return carrinho
+
+
+def mostrar_carrinho(carrinho):
+    if not carrinho:
+        print("O carrinho está vazio.")
+    else:
+        print("Itens no carrinho:")
+        for produto_id, produto in carrinho.items():
+            print(f"{produto_id} - {produto['Nome']}: R${produto['Preço']:.2f}")
+
+
+def remover_do_carrinho(carrinho):
+    if not carrinho:
+        print("O carrinho está vazio, nada a remover.")
+        return carrinho
+
+    mostrar_carrinho(carrinho)
+    escolha = forca_opcao("Escolha o ID do produto que deseja remover do carrinho:", list(carrinho.keys()))
+    print(f"Produto {carrinho[escolha]['Nome']} removido do carrinho.")
+    del carrinho[escolha]
+    return carrinho
+
+
+# Função de escolha na loja
+def escolha_loja(produtos, carrinho):
+    opcoes_loja = [
+        '1 - Ver Produtos',
+        '2 - Comprar Produto',
+        '3 - Ver Carrinho',
+        '4 - Remover Produto do Carrinho',
+        '5 - Voltar ao Menu Principal'
+    ]
+
+    while True:
+        print("\nEscolha uma opção na loja:")
+        for opcao in opcoes_loja:
+            print(opcao)
+
+        escolha_usuario = input("Digite o número da opção desejada: ")
+        print()
+
+        if escolha_usuario == '1':
+            mostrar_produtos(produtos)
+        elif escolha_usuario == '2':
+            carrinho = adicionar_ao_carrinho(carrinho, produtos)
+        elif escolha_usuario == '3':
+            mostrar_carrinho(carrinho)
+        elif escolha_usuario == '4':
+            carrinho = remover_do_carrinho(carrinho)
+        elif escolha_usuario == '5':
+            break
+        else:
+            print("Opção inválida! Tente novamente.")
+
+        print('-' * 30)
+
+
+# Função principal para escolha de apostas e loja
+def escolha(apostas, corredores, dias, cidades, produtos, carrinho):
+    opcoes = [
+        '1 - Ranking dos Corredores',
+        '2 - Dias de Corrida',
+        '3 - Apostar em Corredor',
+        '4 - Apostas Cadastradas',
+        '5 - Remover Aposta',
+        '6 - Loja de Produtos',
+        '7 - Carrinho de Compras',
+        '8 - Sair'
+    ]
+
+    while True:
+        print("\nEscolha uma opção:")
+        for opcao in opcoes:
+            print(opcao)
+
+        escolha_usuario = input("Digite o número da opção desejada: ")
+        print()
+
+        if escolha_usuario == '1':
+            ranking_corredores(corredores)
+        elif escolha_usuario == '2':
+            dias_de_corrida(dias, cidades)
+        elif escolha_usuario == '3':
+            apostas = cadastrar_aposta(apostas, corredores, dias)
+            print("Aposta cadastrada com sucesso!")
+        elif escolha_usuario == '4':
+            mostrar_apostas(apostas)
+        elif escolha_usuario == '5':
+            apostas = remover_aposta(apostas)
+        elif escolha_usuario == '6':
+            escolha_loja(produtos, carrinho)
+        elif escolha_usuario == '7':
+            mostrar_carrinho(carrinho)
+        elif escolha_usuario == '8':
+            print('Obrigado por usar a plataforma!')
+            break
+        else:
+            print("Opção inválida! Tente novamente.")
+
+        print('-' * 30)
+
+
+# Lista de corredores, dias e cidades para o contexto de apostas
+corredores = [
+    'Nick Cassidy',
+    'Pascal Wehrlein',
+    'Mitch Evans',
+    'Oliver Rowland',
+    'Jake Dennis',
+    'Edoardo Mortara',
+    'Jean-Éric Vergne'
+]
+
+dias = [
+    '5 de Outubro', '12 de Outubro', '19 de Outubro', '26 de Outubro',
+    '2 de Novembro', '9 de Novembro', '16 de Novembro'
+]
+
+cidades = [
+    'Roma', 'Paris', 'Berlim', 'Londres',
+    'Madri', 'Amsterdã', 'Mônaco'
+]
+
+# Produtos da loja
+produtos = {
+    '1': {'Nome': 'Camiseta Fórmula E', 'Preço': 99.90},
+    '2': {'Nome': 'Boné Nick Cassidy', 'Preço': 49.90},
+    '3': {'Nome': 'Miniatura de Carro Fórmula E', 'Preço': 149.90},
+    '4': {'Nome': 'Chaveiro Jake Dennis', 'Preço': 19.90},
+    '5': {'Nome': 'Poster Assinado Pascal Wehrlein', 'Preço': 79.90}
+}
+
+# Inicializa as estruturas de apostas e carrinho de compras
+apostas = {}
+carrinho = {}
+
+print("Bem-vindo ao programa PitDash")
+escolha(apostas, corredores, dias, cidades, produtos, carrinho)
